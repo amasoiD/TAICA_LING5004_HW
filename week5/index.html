@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日語有聲單字卡</title>
+    <style>
+        /* --- CSS 外觀設計 --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f7f1e3;
+            color: #2c2c54;
+            margin: 0;
+            padding: 40px 20px;
+            transition: background-color 0.5s ease; 
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #474787;
+            margin-bottom: 20px;
+            margin-top: 40px; /* 稍微往下移，避免跟 Home 按鈕重疊 */
+        }
+
+        /* 💡 新增：Home 按鈕樣式 */
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.6);
+            color: #2c2c54; /* 替換了變數，改用深藍色 */
+            border: 1px solid #dfe4ea; /* 替換了變數，改用淡灰邊框 */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            z-index: 10;
+            font-weight: bold;
+        }
+
+        .home-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 加一點小陰影更有質感 */
+        }
+
+        /* 分類按鈕區 */
+        .category-btns {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #d1ccc0;
+            color: #2c2c54;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        button:hover { background-color: #aaa69d; }
+        button.active { 
+            background-color: #ff5252; 
+            color: white; 
+        }
+
+        /* 進度條區塊 */
+        .progress-container {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #747d8c;
+            margin-bottom: 8px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background-color: #dfe4ea;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #ff5252; 
+            width: 0%; 
+            border-radius: 10px;
+            transition: width 0.4s ease-out; 
+        }
+
+        /* 單字卡 3D 翻轉容器 */
+        .scene {
+            width: 320px;
+            height: 280px; 
+            perspective: 800px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card-front {
+            background-color: white;
+            color: #2c2c54;
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 20px;
+            background-color: #f1f2f6;
+            color: #747d8c;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .front-word {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .front-reading {
+            font-size: 20px;
+            color: #747d8c;
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 20px;
+            font-size: 14px;
+            color: #a4b0be;
+        }
+
+        .card-back {
+            background-color: #474787;
+            color: white;
+            transform: rotateY(180deg);
+            justify-content: flex-start; 
+            padding-top: 30px;
+        }
+
+        .back-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .back-en {
+            font-size: 16px;
+            color: #d1ccc0;
+            margin-bottom: 20px;
+        }
+
+        .example-box {
+            background-color: rgba(255, 255, 255, 0.15); 
+            padding: 15px;
+            border-radius: 10px;
+            width: 90%;
+            text-align: left;
+        }
+
+        .example-jp {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffda79; 
+        }
+
+        .example-zh {
+            font-size: 14px;
+            color: #f1f2f6;
+        }
+
+        /* 語音與導覽按鈕區 */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .audio-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .audio-controls button {
+            flex: 1;
+            background-color: #34ace0;
+            color: white;
+            border-radius: 50px;
+        }
+        
+        .audio-controls button:hover { background-color: #227093; }
+        
+        .nav-btns {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .nav-btns button {
+            flex: 1;
+            background-color: #2c2c54;
+            color: white;
+        }
+
+        .nav-btns button:hover { background-color: #40407a; }
+
+        /* 底部提示與自動換色開關設計 */
+        .footer-settings {
+            margin-top: 50px; 
+            text-align: center;
+        }
+
+        .bg-hint-text {
+            color: #a4b0be; 
+            font-size: 14px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .auto-color-btn {
+            background-color: #f1f2f6;
+            color: #747d8c;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #dfe4ea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .auto-color-btn:hover {
+            background-color: #dfe4ea;
+        }
+        
+        .auto-color-btn.on {
+            background-color: #badc58;
+            color: #2c2c54;
+            border-color: #badc58;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://amasoid.github.io/TAICA_LING5004_HW" class="home-btn">← Home</a>
+
+    <h2>🎌 日語有聲單字卡</h2>
+
+    <div class="category-btns" id="category-container"></div>
+
+    <div class="progress-container">
+        <div class="progress-text" id="progress-text">1 / 5</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="scene" onclick="flipCard()">
+        <div class="card" id="flashcard">
+            <div class="card-face card-front">
+                <div class="category-badge" id="front-category">分類</div>
+                <div class="front-word" id="word-front">日語</div>
+                <div class="front-reading" id="word-reading">Romaji</div>
+                <div class="flip-hint">點擊卡片翻面看意思</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="back-title" id="word-back-zh">中文</div>
+                <div class="back-en" id="word-back-en">English</div>
+                <div class="example-box">
+                    <div class="example-jp" id="word-ex-jp">例句日文</div>
+                    <div class="example-zh" id="word-ex-zh">例句中文翻譯</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-container">
+        <div class="audio-controls">
+            <button onclick="speakWord(0.5)">🐢 慢速</button>
+            <button onclick="speakWord(1.0)">▶️ 常速</button>
+            <button onclick="speakWord(1.5)">🐇 快速</button>
+        </div>
+
+        <div class="nav-btns">
+            <button onclick="prevWord()">⬅️ 上一個</button>
+            <button onclick="nextWord()">下一個 ➡️</button>
+        </div>
+    </div>
+
+    <div class="footer-settings">
+        <div class="bg-hint-text">點擊背景可隨機切換顏色</div>
+        <button id="auto-color-toggle" class="auto-color-btn on" onclick="toggleAutoColor()">
+            自動換色：開啟 🔄
+        </button>
+    </div>
+
+<script>
+    // 1. 單字資料庫
+    const vocabData = {
+        "基礎問候": [
+            { front: "こんにちは", reading: "Konnichiwa", backZh: "你好 (白天)", backEn: "Hello / Good afternoon", exJp: "こんにちは、お元気ですか？", exZh: "你好，你好嗎？" },
+            { front: "ありがとう", reading: "Arigatou", backZh: "謝謝", backEn: "Thank you", exJp: "手伝ってくれてありがとう。", exZh: "謝謝你的幫忙。" },
+            { front: "さようなら", reading: "Sayounara", backZh: "再見", backEn: "Goodbye", exJp: "また明日、さようなら。", exZh: "明天見，再見。" },
+            { front: "おはよう", reading: "Ohayou", backZh: "早安", backEn: "Good morning", exJp: "おはようございます！", exZh: "早安！" },
+            { front: "すみません", reading: "Sumimasen", backZh: "不好意思", backEn: "Excuse me / I'm sorry", exJp: "すみません、道を教えてください。", exZh: "不好意思，請告訴我怎麼走。" }
+        ],
+        "美味食物": [
+            { front: "すし", reading: "Sushi", backZh: "壽司", backEn: "Sushi", exJp: "私はすしが好きです。", exZh: "我喜歡吃壽司。" },
+            { front: "ラーメン", reading: "Ramen", backZh: "拉麵", backEn: "Ramen", exJp: "美味しいラーメンを食べました。", exZh: "吃了好吃的拉麵。" },
+            { front: "りんご", reading: "Ringo", backZh: "蘋果", backEn: "Apple", exJp: "このりんごは甘いです。", exZh: "這顆蘋果很甜。" },
+            { front: "おちゃ", reading: "Ocha", backZh: "茶", backEn: "Tea", exJp: "温かいおちゃを飲みます。", exZh: "喝熱茶。" },
+            { front: "パン", reading: "Pan", backZh: "麵包", backEn: "Bread", exJp: "朝食にパンを食べます。", exZh: "早餐吃麵包。" }
+        ],
+        "數字": [
+            { front: "いち", reading: "Ichi", backZh: "一", backEn: "One", exJp: "りんごが一つあります。", exZh: "有一顆蘋果。" },
+            { front: "に", reading: "Ni", backZh: "二", backEn: "Two", exJp: "猫が二匹います。", exZh: "有兩隻貓。" },
+            { front: "さん", reading: "San", backZh: "三", backEn: "Three", exJp: "ペンを三本買いました。", exZh: "買了三支筆。" },
+            { front: "よん", reading: "Yon", backZh: "四", backEn: "Four", exJp: "四時にお茶を飲みます。", exZh: "四點喝茶。" },
+            { front: "ご", reading: "Go", backZh: "五", backEn: "Five", exJp: "五分待ってください。", exZh: "請等五分鐘。" }
+        ]
+    };
+
+    let currentCategory = "基礎問候";
+    let currentIndex = 0;
+
+    function init() {
+        renderCategoryButtons();
+        updateCard();
+        startAutoColor(); 
+    }
+
+    function renderCategoryButtons() {
+        const container = document.getElementById('category-container');
+        container.innerHTML = ''; 
+        
+        for (let category in vocabData) {
+            const btn = document.createElement('button');
+            btn.textContent = category;
+            if (category === currentCategory) btn.classList.add('active');
+            
+            btn.onclick = () => {
+                currentCategory = category;
+                currentIndex = 0; 
+                renderCategoryButtons(); 
+                updateCard();
+            };
+            container.appendChild(btn);
+        }
+    }
+
+    function updateCard() {
+        const word = vocabData[currentCategory][currentIndex];
+        
+        document.getElementById('front-category').textContent = currentCategory;
+        document.getElementById('word-front').textContent = word.front;
+        document.getElementById('word-reading').textContent = word.reading;
+        
+        document.getElementById('word-back-zh').textContent = word.backZh;
+        document.getElementById('word-back-en').textContent = word.backEn;
+        document.getElementById('word-ex-jp').textContent = word.exJp;
+        document.getElementById('word-ex-zh').textContent = word.exZh;
+        
+        document.getElementById('flashcard').classList.remove('is-flipped');
+
+        const totalWords = vocabData[currentCategory].length;
+        const currentWordNum = currentIndex + 1;
+        document.getElementById('progress-text').textContent = `${currentWordNum} / ${totalWords}`;
+        const progressPercentage = (currentWordNum / totalWords) * 100;
+        document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+    }
+
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('is-flipped');
+    }
+
+    function speakWord(speedRate) {
+        const textToSpeak = document.getElementById('word-front').textContent;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'ja-JP'; 
+        utterance.rate = speedRate; 
+        
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+        
+        event.stopPropagation();
+    }
+
+    function nextWord() {
+        const maxIndex = vocabData[currentCategory].length - 1;
+        currentIndex = (currentIndex < maxIndex) ? currentIndex + 1 : 0; 
+        updateCard();
+    }
+
+    function prevWord() {
+        const maxIndex = vocabData[currentCategory].length - 1;
+        currentIndex = (currentIndex > 0) ? currentIndex - 1 : maxIndex; 
+        updateCard();
+    }
+
+    // --- 背景切換與自動化控制邏輯 ---
+    const bgColors = ['#f7f1e3', '#fad390', '#e58e26', '#b8e994', '#82ccdd', '#f8a5c2', '#d1d8e0'];
+    let autoColorInterval = null; 
+    let isAutoColorEnabled = true; 
+
+    function changeBackgroundColor() {
+        const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+        document.body.style.backgroundColor = randomColor;
+    }
+
+    function startAutoColor() {
+        autoColorInterval = setInterval(changeBackgroundColor, 60000); 
+    }
+
+    function toggleAutoColor() {
+        const btn = document.getElementById('auto-color-toggle');
+        isAutoColorEnabled = !isAutoColorEnabled; 
+        
+        if (isAutoColorEnabled) {
+            btn.textContent = "自動換色：開啟 🔄";
+            btn.classList.add('on');
+            startAutoColor(); 
+        } else {
+            btn.textContent = "自動換色：關閉 ⏸️";
+            btn.classList.remove('on');
+            clearInterval(autoColorInterval); 
+        }
+        
+        event.stopPropagation(); 
+    }
+
+    // 點擊背景換色監聽器
+    document.addEventListener('click', function(event) {
+        // 排除卡片、按鈕、Home鍵以及底部的設定區塊
+        if (!event.target.closest('.card') && 
+            !event.target.closest('button') && 
+            !event.target.closest('.home-btn') && 
+            !event.target.closest('.footer-settings')) {
+            changeBackgroundColor();
+        }
+    });
+
+    init();
+</script>
+
+</body>
+</html>
