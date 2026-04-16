@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 7 · Grep 練習 · 文本分析報告</title>
+  <style>
+    :root {
+      --text: #1f1f1c;
+      --muted: #6b6b66;
+      --line: rgba(255,255,255,0.3);
+      --hover: rgba(255,255,255,0.6);
+      --accent: #4f7cff;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)), #cfedff;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 72px 24px 48px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.3);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      transition: opacity 0.18s ease;
+    }
+
+    .back-link:hover {
+      opacity: 0.7;
+    }
+
+    h1 {
+      margin: 24px 0 12px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      margin: 42px 0 16px;
+      font-size: 1.4rem;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    h3 {
+      margin: 28px 0 12px;
+      font-size: 1.1rem;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    p {
+      margin: 0 0 16px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    ul, ol {
+      margin: 12px 0 16px 24px;
+      line-height: 1.8;
+    }
+
+    li {
+      margin: 8px 0;
+      color: var(--text);
+    }
+
+    strong, b {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    em, i {
+      font-style: italic;
+    }
+
+    code {
+      background: rgba(255,255,255,0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.9em;
+      color: var(--accent);
+    }
+
+    .content {
+      line-height: 1.9;
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        padding-top: 52px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      h2 {
+        font-size: 1.1rem;
+      }
+
+      h3 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back-link" href="https://amasoid.github.io/TAICA_LING5004_HW">← Home</a>
+    <div class="eyebrow">Week 7 · Grep 練習</div>
+
+    <div class="content">
+      <h1>📚 文本分析報告：《Little Folks' Handy Book》關鍵詞分佈比較</h1>
+
+      <h2>1. 分析目標與選詞策略</h2>
+      <p>本次分析使用 CLI 指令 <code>grep</code> 提取文本數據，探討三種不同屬性的詞彙在手工藝教學書籍中的分佈規律：</p>
+      <ul>
+        <li><strong>材料類：<code>spool</code> (線軸)</strong></li>
+        <li><strong>動作類：<code>cut</code> (剪下)</strong></li>
+        <li><strong>成品類：<code>toy</code> (玩具)</strong></li>
+      </ul>
+
+      <h2>2. 文本分佈規律比較</h2>
+
+      <h3>✂️ Cut (剪下)：貫穿全書的「通用基礎動作」</h3>
+      <ul>
+        <li><strong>分佈特徵：極度均勻的散佈。</strong></li>
+        <li>從文字的第 96 行一直到結尾的第 3277 行，<code>cut</code> 幾乎沒有中斷地出現在每一個區塊。</li>
+        <li><strong>意義：</strong> 這是一本教導兒童動手做的書，無論使用什麼材料（紙張、信封、木柴），「剪裁」都是不可或缺的核心動作。因此，它的分佈曲線最為平穩，是整本書的動作基底。</li>
+      </ul>
+
+      <h3>🧵 Spool (線軸)：集中爆發的「章節限定主角」</h3>
+      <ul>
+        <li><strong>分佈特徵：高度集中的區域性爆發。</strong></li>
+        <li>如同先前的分析，它高度集中在第 790 至 1200 行之間（第六章：用空線軸可以做什麼）。</li>
+        <li><strong>意義：</strong> 作者的編排邏輯是「以材料區分章節」。因此特定材料詞彙只會在專屬章節中大量出現，過了該章節後，出現頻率就會斷崖式下降。</li>
+      </ul>
+
+      <h3>🧸 Toy (玩具)：標示結構的「導覽與定調詞」</h3>
+      <ul>
+        <li><strong>分佈特徵：集中在目錄、標題與段落首尾。</strong></li>
+        <li><code>toy</code> 在前段（行號 155-171）密集出現，這其實是書本的「目錄」區域，列出了如 <em>"TOYS MADE OF COMMON WOODEN BERRY-BASKETS"</em>、<em>"OLD ENVELOPE TOYS"</em> 等章節名稱。</li>
+        <li>在內文中，它多用來為製作的物品「定調」，例如 <em>"toy dishes"</em>（玩具盤子）或 <em>"toy furniture"</em>（玩具家具），而不是實際的製作步驟說明。</li>
+        <li><strong>意義：</strong> <code>toy</code> 是一個宏觀的「概念詞彙」。它的功能是建構書本框架（章節標題）和提醒讀者最終目標，因此它的分佈就像是書本的骨架，間隔性地點綴在各個段落中。</li>
+      </ul>
+
+      <h2>3. 結論</h2>
+      <p>透過 <code>grep</code> 的行號分析，我們不需要逐字閱讀，就能從數據分佈中看透這本書的寫作結構：<code>cut</code> 構築了整本書的操作血肉，<code>spool</code> 展現了以材料為單位的章節區塊，而 <code>toy</code> 則是串起整本書目的與導覽的骨架。</p>
+    </div>
+  </main>
+</body>
+</html>
