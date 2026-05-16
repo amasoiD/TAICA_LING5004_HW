@@ -1,0 +1,32 @@
+# 自動化腳本生成技能
+
+description: |
+  針對遊戲每日簽到或系統定期任務，快速產出包含完整環境設定的 Google Apps Script 或 Linux systemd 服務檔。
+
+trigger:
+  - 「幫我寫自動簽到腳本」
+  - 「寫一個系統服務檔」
+  - 「自動化這個任務」
+
+inputs:
+  - task_type: 任務類型（如 GAS 遊戲簽到、Bash 背景服務）
+  - target_path: 執行檔或專案的絕對路徑
+
+steps:
+  1. 確認任務環境：若是 GAS，準備 JavaScript Fetch 框架；若是 Linux，準備 systemd 結構。
+  2. 識別關鍵參數：
+     - 所需的環境變數 (Environment)
+     - 執行的 User/Group 權限 (如 milkchoco948710)
+     - 工作目錄 (WorkingDirectory)
+  3. 用我偏好的高標準格式輸出。
+
+output_template: |
+  ## 自動化腳本配置
+
+  **任務類型**：[GAS / systemd]
+  **目標路徑**：[target_path]
+
+  ### 程式碼實作
+  ```[javascript/ini]
+  // 或是 systemd 設定內容，包含 [Unit], [Service], [Install]
+  // 確保包含 ExecStart 與環境變數注入

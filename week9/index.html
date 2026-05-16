@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 9 · Hermes Agent Persona 與 Tool Calling</title>
+  <style>
+    :root {
+      --text: #1f1f1c;
+      --muted: #6b6b66;
+      --line: rgba(255,255,255,0.3);
+      --accent: #4f7cff;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)), #cfedff;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 72px 24px 48px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.3);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      transition: opacity 0.18s ease;
+    }
+
+    .back-link:hover {
+      opacity: 0.7;
+    }
+
+    h1 {
+      margin: 24px 0 12px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      margin: 32px 0 12px;
+      font-size: 1.2rem;
+      line-height: 1.4;
+    }
+
+    p {
+      margin: 0 0 16px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    ul {
+      margin: 0 0 16px 20px;
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        padding-top: 52px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back-link" href="https://amasoid.github.io/TAICA_LING5004_HW">← Home</a>
+    <div class="eyebrow">Week 9 · Hermes Agent Persona 與 Tool Calling</div>
+
+    <div class="content">
+      <h1>Agent Persona 與外部工具測試</h1>
+
+      <p>本週作業分為兩部分：</p>
+      <ul>
+        <li>使用 `SOUL.md` 重新定義 Hermes Agent 的人格與對話風格。</li>
+        <li>測試 Agent 的 Tool Calling 能力，確認它是否能在需要時呼叫外部工具進行計算。</li>
+      </ul>
+
+      <h2>SOUL.md 角色設計</h2>
+      <p>我在 `~/.hermes/SOUL.md` 中加入了貓娘角色設定，要求 Agent 以可愛的方式回應並帶有「喵」字尾。修改前後的測試結果顯示：「你好」和「你是誰」兩個問題的回應已明顯轉向貓娘風格。</p>
+
+      <h2>Tool Calling 測試</h2>
+      <p>透過具體範例題目，讓 Agent 生成 Python 程式碼，驗證函數 `f(x) = x^2` 在區間 `[0, 1]` 上是否具有均勻連續性。這部分重點在於：</p>
+      <ul>
+        <li>是否能識別需要計算或檢驗的情境。</li>
+        <li>是否能自動產生並執行工具相關程式碼。</li>
+      </ul>
+
+      <p>最終結果顯示，Agent 能生成一段數值採樣程式，並以「數值驗證」方式判斷均勻連續性。</p>
+    </div>
+  </main>
+</body>
+</html>
